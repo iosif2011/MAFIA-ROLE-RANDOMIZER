@@ -1,0 +1,271 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MAFIA (SHIT THINGY)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        body {
+            font-family: 'VT323', monospace;
+            background-color: #222;
+            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://www.transparenttextures.com/patterns/dark-matter.png');
+            color: #ffffff;
+            text-align: center;
+            padding: 10px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 95%;
+            margin: 15px auto;
+            background: #4a4a4a;
+            border: 5px solid #000;
+            padding: 20px;
+            box-shadow: inset -6px -6px 0px #222, inset 6px 6px 0px #888;
+            box-sizing: border-box;
+        }
+
+        h1 { color: #55FF55; text-shadow: 3px 3px #004400; font-size: 48px; margin: 10px 0; }
+        h2 { color: #55FF55; font-size: 36px; margin: 5px 0; }
+        p { font-size: 24px; margin: 10px 0; }
+        
+        .role-row, .modifier-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+            padding: 15px;
+            background: #313131;
+            border: 3px solid #000;
+        }
+
+        label { font-size: 28px; text-align: left; }
+
+        input[type="number"] {
+            width: 70px;
+            background: #000;
+            color: #55FF55;
+            border: 3px solid #555;
+            font-family: 'VT323', monospace;
+            font-size: 32px;
+            padding: 5px;
+            text-align: center;
+        }
+
+        button {
+            background-color: #55aa55;
+            color: white;
+            border: 4px solid #000;
+            box-shadow: inset -4px -4px 0px #225522, inset 4px 4px 0px #88ff88;
+            padding: 15px 30px;
+            font-size: 32px;
+            font-family: 'VT323', monospace;
+            cursor: pointer;
+            margin: 15px 5px;
+            width: 90%; /* Buttons take up most of the width for easy tapping */
+        }
+
+        button:active { transform: translateY(3px); box-shadow: inset 4px 4px 0px #225522; }
+
+        .btn-danger { background-color: #FF5555; box-shadow: inset -4px -4px 0px #aa0000, inset 4px 4px 0px #ffaaaa; }
+
+        #roleDisplay {
+            margin: 25px 0;
+            padding: 30px 10px;
+            background: #111;
+            border: 5px solid #FF5555;
+        }
+
+        #theRole { font-size: 50px; color: #FF5555; display: block; margin: 10px 0; text-transform: uppercase; }
+        .lovebird-text { color: #FF55FF; font-size: 34px; display: block; font-weight: bold; }
+        
+        #narratorList {
+            text-align: left;
+            background: #1e1e1e;
+            padding: 20px;
+            border: 3px solid #55FF55;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .narrator-entry { border-bottom: 2px solid #444; padding: 12px 0; font-size: 28px;}
+        .role-name { color: #FFFF55; font-weight: bold; }
+        .mod-name { color: #FF55FF; }
+
+        #innocentTracker { font-size: 28px; margin: 20px 0; border-top: 2px dashed #888; padding-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="step1">
+    <h1>MAFIA ROLES RANDMOMIZER</h1>
+    <label style="display:block; text-align:center;">HOW MANY PLAYERS?</label>
+    <input type="number" id="playerCount" min="4" value="6" style="width: 120px; font-size: 40px; margin: 20px 0;">
+    <br>
+    <button onclick="goToSetup()">NEXT</button>
+</div>
+
+<div class="container" id="step2" style="display:none;">
+    <h2>ROLES</h2>
+    <div id="roleInputs"></div>
+    <div class="modifier-row" style="background: #3e2e3e; border: 3px solid #FF55FF;">
+        <label style="color:#FF55FF; font-size: 24px;">COUPLES:<br><small style="color:#ddd; font-size: 16px;">(1 pair = 2 birds)</small></label>
+        <input type="number" id="qtyLovebird" value="0">
+    </div>
+    <p id="innocentTracker"></p>
+    <button onclick="startGame()">START GAME</button>
+</div>
+
+<div class="container" id="step3" style="display:none;">
+    <h2 id="playerTurnTitle" style="color:#FFFF55; font-size: 44px;">PLAYER 1</h2>
+    <p id="instructionText">PASS TO PLAYER</p>
+    <button id="btnReveal" onclick="revealRole()">SEE ROLE</button>
+    
+    <div id="roleDisplay" style="display:none;">
+        <span style="font-size: 24px;">YOU ARE:</span>
+        <span id="theRole"></span>
+        <span id="theMod" class="lovebird-text"></span>
+    </div>
+    
+    <button id="btnNext" style="display:none;" onclick="nextPlayer()">HIDE & NEXT</button>
+    <button id="btnToNarrator" style="display:none;" onclick="prepNarrator()">GIVE TO NARRATOR</button>
+</div>
+
+<div class="container" id="step4" style="display:none;">
+    <h2 style="color: #55FFFF;">NARRATOR LOG</h2>
+    <p id="lockWarning" style="color: #FF5555; font-weight: bold;">DO NOT LOOK IF YOU ARE A PLAYER!</p>
+    
+    <button id="btnUnlock" class="btn-danger" onclick="unlockLog()">UNLOCK LOG</button>
+    
+    <div id="narratorList"></div>
+    <br>
+    <button onclick="location.reload()">NEW GAME</button>
+</div>
+
+<script>
+    const availableRoles = ['Mafia', 'Detective', 'Doctor', 'Bitch', 'Jester', 'Sheriff', 'Mayor'];
+    let gameDeck = [];
+    let currentIndex = 0;
+
+    function goToSetup() {
+        const pCount = parseInt(document.getElementById('playerCount').value);
+        const container = document.getElementById('roleInputs');
+        container.innerHTML = '';
+
+        availableRoles.forEach(role => {
+            container.innerHTML += `
+                <div class="role-row">
+                    <label>${role.toUpperCase()}</label>
+                    <input type="number" id="qty${role}" value="0" onchange="updateTracker()">
+                </div>`;
+        });
+
+        // Your Defaults Logic
+        document.getElementById('qtyMafia').value = 2;
+        document.getElementById('qtyDetective').value = 1;
+        document.getElementById('qtyDoctor').value = 1;
+        
+        if (pCount === 7) { document.getElementById('qtyLovebird').value = 1; document.getElementById('qtyBitch').value = 1; }
+        else if (pCount === 8) { document.getElementById('qtyLovebird').value = 1; document.getElementById('qtyBitch').value = 1; document.getElementById('qtyJester').value = 1; }
+        else if (pCount === 9) { document.getElementById('qtyLovebird').value = 1; document.getElementById('qtyBitch').value = 1; document.getElementById('qtyJester').value = 1; document.getElementById('qtySheriff').value = 1; }
+        else if (pCount >= 10) { document.getElementById('qtyLovebird').value = 1; document.getElementById('qtyBitch').value = 1; document.getElementById('qtyJester').value = 1; document.getElementById('qtySheriff').value = 1; document.getElementById('qtyMayor').value = 1; }
+
+        document.getElementById('step1').style.display = 'none';
+        document.getElementById('step2').style.display = 'block';
+        updateTracker();
+    }
+
+    function updateTracker() {
+        const pCount = parseInt(document.getElementById('playerCount').value);
+        let assigned = 0;
+        availableRoles.forEach(r => assigned += parseInt(document.getElementById('qty'+r).value) || 0);
+        const tracker = document.getElementById('innocentTracker');
+        const diff = pCount - assigned;
+        tracker.innerText = diff >= 0 ? `INNOCENTS: ${diff}` : `OVER BY ${Math.abs(diff)}!`;
+        tracker.style.color = diff >= 0 ? "#55FF55" : "#FF5555";
+    }
+
+    function startGame() {
+        const pCount = parseInt(document.getElementById('playerCount').value);
+        let deck = [];
+        availableRoles.forEach(role => {
+            let qty = parseInt(document.getElementById('qty' + role).value) || 0;
+            for(let i=0; i<qty; i++) deck.push({ base: role, mod: "" });
+        });
+        while (deck.length < pCount) deck.push({ base: "Innocent", mod: "" });
+
+        for (let i = deck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+
+        let numPairs = parseInt(document.getElementById('qtyLovebird').value) || 0;
+        let birdsToAssign = numPairs * 2;
+        let indices = Array.from(Array(pCount).keys());
+        for (let i = indices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+        for (let k = 0; k < birdsToAssign && k < pCount; k++) {
+            deck[indices[k]].mod = "Lovebird";
+        }
+
+        gameDeck = deck;
+        document.getElementById('step2').style.display = 'none';
+        document.getElementById('step3').style.display = 'block';
+        setupTurn();
+    }
+
+    function setupTurn() {
+        document.getElementById('playerTurnTitle').innerText = `PLAYER ${currentIndex + 1}`;
+        document.getElementById('instructionText').innerText = "PASS DEVICE NOW";
+        document.getElementById('btnReveal').style.display = 'block';
+        document.getElementById('btnReveal').style.margin = '20px auto';
+        document.getElementById('roleDisplay').style.display = 'none';
+        document.getElementById('btnNext').style.display = 'none';
+    }
+
+    function revealRole() {
+        const p = gameDeck[currentIndex];
+        document.getElementById('theRole').innerText = p.base;
+        document.getElementById('theMod').innerText = p.mod ? `💕 ${p.mod.toUpperCase()} 💕` : "";
+        document.getElementById('btnReveal').style.display = 'none';
+        document.getElementById('roleDisplay').style.display = 'block';
+        document.getElementById('instructionText').innerText = "MEMORIZE IT!";
+        
+        if (currentIndex < gameDeck.length - 1) {
+            document.getElementById('btnNext').style.display = 'block';
+            document.getElementById('btnNext').style.margin = '10px auto';
+        } else {
+            document.getElementById('btnToNarrator').style.display = 'block';
+            document.getElementById('btnToNarrator').style.margin = '10px auto';
+        }
+    }
+
+    function nextPlayer() {
+        currentIndex++;
+        setupTurn();
+    }
+
+    function prepNarrator() {
+        document.getElementById('step3').style.display = 'none';
+        document.getElementById('step4').style.display = 'block';
+    }
+
+    function unlockLog() {
+        document.getElementById('btnUnlock').style.display = 'none';
+        document.getElementById('lockWarning').style.display = 'none';
+        const list = document.getElementById('narratorList');
+        list.style.display = 'block';
+        list.innerHTML = gameDeck.map((p, i) => `
+            <div class="narrator-entry">
+                P${i+1}: <span class="role-name">${p.base}</span> 
+                ${p.mod ? `<span class="mod-name"> (${p.mod})</span>` : ''}
+            </div>
+        `).join('');
+    }
+</script>
+</body>
+</html>
