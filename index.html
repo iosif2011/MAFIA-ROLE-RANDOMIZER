@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -64,7 +64,7 @@
             font-family: 'VT323', monospace;
             cursor: pointer;
             margin: 15px 5px;
-            width: 90%; /* Buttons take up most of the width for easy tapping */
+            width: 90%; 
         }
 
         button:active { transform: translateY(3px); box-shadow: inset 4px 4px 0px #225522; }
@@ -78,8 +78,9 @@
             border: 5px solid #FF5555;
         }
 
-        #theRole { font-size: 50px; color: #FF5555; display: block; margin: 10px 0; text-transform: uppercase; }
+        #theRole { font-size: 50px; display: block; margin: 10px 0; text-transform: uppercase; }
         .lovebird-text { color: #FF55FF; font-size: 34px; display: block; font-weight: bold; }
+        #roleDesc { font-size: 22px; color: #ccc; margin-top: 14px; padding: 10px 16px; background: #1e1e1e; border-left: 4px solid #888; text-align: left; line-height: 1.4; }
         
         #narratorList {
             text-align: left;
@@ -100,7 +101,7 @@
 <body>
 
 <div class="container" id="step1">
-    <h1>MAFIA ROLES RANDMOMIZER</h1>
+    <h1>MAFIA ROLES RANDOMIZER</h1>
     <label style="display:block; text-align:center;">HOW MANY PLAYERS?</label>
     <input type="number" id="playerCount" min="4" value="6" style="width: 120px; font-size: 40px; margin: 20px 0;">
     <br>
@@ -110,10 +111,13 @@
 <div class="container" id="step2" style="display:none;">
     <h2>ROLES</h2>
     <div id="roleInputs"></div>
+    
     <div class="modifier-row" style="background: #3e2e3e; border: 3px solid #FF55FF;">
         <label style="color:#FF55FF; font-size: 24px;">COUPLES:<br><small style="color:#ddd; font-size: 16px;">(1 pair = 2 birds)</small></label>
         <input type="number" id="qtyLovebird" value="0">
     </div>
+
+
     <p id="innocentTracker"></p>
     <button onclick="startGame()">START GAME</button>
 </div>
@@ -127,6 +131,7 @@
         <span style="font-size: 24px;">YOU ARE:</span>
         <span id="theRole"></span>
         <span id="theMod" class="lovebird-text"></span>
+        <div id="roleDesc"></div>
     </div>
     
     <button id="btnNext" style="display:none;" onclick="nextPlayer()">HIDE & NEXT</button>
@@ -146,23 +151,38 @@
 
 <script>
     const availableRoles = ['Mafia', 'Detective', 'Doctor', 'Bitch', 'Jester', 'Sheriff', 'Mayor'];
+
+    const roleInfo = {
+        'Mafia':     { color: '#FF4444', bg: '#2e0000', border: '#FF4444', emoji: '🔪', desc: 'You are part of the Mafia. Each night, you and your crew choose someone to eliminate. Stay hidden, lie convincingly, and avoid the vote.' },
+        'Detective': { color: '#4488FF', bg: '#00102e', border: '#4488FF', emoji: '🔍', desc: 'Each night you investigate one player and learn if they are Mafia or not. Share your findings carefully — the Mafia will want you dead.' },
+        'Doctor':    { color: '#44FF88', bg: '#002e10', border: '#44FF88', emoji: '💉', desc: 'Each night you choose one player to protect. If the Mafia targets them, they survive. You can protect yourself, but only once.' },
+        'Bitch':     { color: '#FF55FF', bg: '#2e002e', border: '#FF55FF', emoji: '💅', desc: 'Each night you block one player, preventing them from using their ability. You have no idea what role you are stopping — choose wisely.' },
+        'Jester':    { color: '#FFAA00', bg: '#2e1a00', border: '#FFAA00', emoji: '🃏', desc: 'You WIN by getting yourself voted out and executed by the town. Act suspicious, be annoying, and manipulate the group into eliminating you.' },
+        'Sheriff':   { color: '#FFD700', bg: '#2e2200', border: '#FFD700', emoji: '⭐', desc: 'Once per game, you may publicly accuse someone. If they are Mafia, they are instantly eliminated. If you are wrong, YOU are eliminated instead.' },
+        'Mayor':     { color: '#55FFFF', bg: '#002e2e', border: '#55FFFF', emoji: '🎖️', desc: 'You are the Mayor. Your vote counts as two during the day phase. You may reveal your role publicly at any time to gain the town\'s trust.' },
+        'Innocent':  { color: '#aaaaaa', bg: '#1e1e1e', border: '#aaaaaa', emoji: '😇', desc: 'You are just a regular townsperson. You have no special ability — your only power is your voice. Observe, deduce, and vote wisely.' },
+        'Lovebird':  { color: '#FF55FF', bg: '#2e002e', border: '#FF55FF', emoji: '💕', desc: 'You are a Lovebird! You and your partner are linked — if one of you dies, the other dies too. Find your partner, protect each other, but don\'t make it obvious.' },
+    };
     let gameDeck = [];
     let currentIndex = 0;
 
     function goToSetup() {
         const pCount = parseInt(document.getElementById('playerCount').value);
         const container = document.getElementById('roleInputs');
-        container.innerHTML = '';
 
+        // FIX: Build the full string first, then set innerHTML once — prevents duplicate boxes
+        let rolesHTML = '';
         availableRoles.forEach(role => {
-            container.innerHTML += `
-                <div class="role-row">
-                    <label>${role.toUpperCase()}</label>
+            const info = roleInfo[role] || {};
+            rolesHTML += `
+                <div class="role-row" style="background:${info.bg || '#313131'}; border-color:${info.border || '#000'};">
+                    <label style="color:${info.color || '#fff'}">${info.emoji || ''} ${role.toUpperCase()}</label>
                     <input type="number" id="qty${role}" value="0" onchange="updateTracker()">
                 </div>`;
         });
+        container.innerHTML = rolesHTML;
 
-        // Your Defaults Logic
+        // Defaults Logic
         document.getElementById('qtyMafia').value = 2;
         document.getElementById('qtyDetective').value = 1;
         document.getElementById('qtyDoctor').value = 1;
@@ -190,17 +210,20 @@
     function startGame() {
         const pCount = parseInt(document.getElementById('playerCount').value);
         let deck = [];
+        
         availableRoles.forEach(role => {
             let qty = parseInt(document.getElementById('qty' + role).value) || 0;
             for(let i=0; i<qty; i++) deck.push({ base: role, mod: "" });
         });
         while (deck.length < pCount) deck.push({ base: "Innocent", mod: "" });
 
+        // Shuffle Deck
         for (let i = deck.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [deck[i], deck[j]] = [deck[j], deck[i]];
         }
 
+        // Apply Lovebirds
         let numPairs = parseInt(document.getElementById('qtyLovebird').value) || 0;
         let birdsToAssign = numPairs * 2;
         let indices = Array.from(Array(pCount).keys());
@@ -209,7 +232,7 @@
             [indices[i], indices[j]] = [indices[j], indices[i]];
         }
         for (let k = 0; k < birdsToAssign && k < pCount; k++) {
-            deck[indices[k]].mod = "Lovebird";
+            deck[indices[k]].mod = "💕 LOVEBIRD 💕";
         }
 
         gameDeck = deck;
@@ -229,8 +252,22 @@
 
     function revealRole() {
         const p = gameDeck[currentIndex];
-        document.getElementById('theRole').innerText = p.base;
-        document.getElementById('theMod').innerText = p.mod ? `💕 ${p.mod.toUpperCase()} 💕` : "";
+        const info = roleInfo[p.base] || { color: '#ffffff', bg: '#111', border: '#ffffff', emoji: '', desc: '' };
+
+        const roleEl = document.getElementById('theRole');
+        roleEl.innerText = (info.emoji ? info.emoji + ' ' : '') + p.base;
+        roleEl.style.color = info.color;
+
+        const display = document.getElementById('roleDisplay');
+        display.style.borderColor = info.color;
+        display.style.background = info.bg;
+
+        document.getElementById('roleDesc').innerText = info.desc;
+        document.getElementById('roleDesc').style.borderLeftColor = info.color;
+
+        // Lovebird extra desc
+        let modText = p.mod ? p.mod : "";
+        document.getElementById('theMod').innerText = modText;
         document.getElementById('btnReveal').style.display = 'none';
         document.getElementById('roleDisplay').style.display = 'block';
         document.getElementById('instructionText').innerText = "MEMORIZE IT!";
