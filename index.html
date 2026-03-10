@@ -153,15 +153,15 @@
     const availableRoles = ['Mafia', 'Detective', 'Doctor', 'Bitch', 'Jester', 'Sheriff', 'Mayor'];
 
     const roleInfo = {
-        'Mafia':     { color: '#FF4444', bg: '#2e0000', border: '#FF4444', emoji: '🔪', desc: 'You are part of the Mafia. Each night, you and your crew choose someone to eliminate. Stay hidden, lie convincingly, and avoid the vote.' },
-        'Detective': { color: '#4488FF', bg: '#00102e', border: '#4488FF', emoji: '🔍', desc: 'Each night you investigate one player and learn if they are Mafia or not. Share your findings carefully — the Mafia will want you dead.' },
-        'Doctor':    { color: '#44FF88', bg: '#002e10', border: '#44FF88', emoji: '💉', desc: 'Each night you choose one player to protect. If the Mafia targets them, they survive. You can protect yourself, but only once.' },
-        'Bitch':     { color: '#FF55FF', bg: '#2e002e', border: '#FF55FF', emoji: '💅', desc: 'Each night you block one player, preventing them from using their ability. You have no idea what role you are stopping — choose wisely.' },
-        'Jester':    { color: '#FFAA00', bg: '#2e1a00', border: '#FFAA00', emoji: '🃏', desc: 'You WIN by getting yourself voted out and executed by the town. Act suspicious, be annoying, and manipulate the group into eliminating you.' },
-        'Sheriff':   { color: '#FFD700', bg: '#2e2200', border: '#FFD700', emoji: '⭐', desc: 'Once per game, you may publicly accuse someone. If they are Mafia, they are instantly eliminated. If you are wrong, YOU are eliminated instead.' },
-        'Mayor':     { color: '#55FFFF', bg: '#002e2e', border: '#55FFFF', emoji: '🎖️', desc: 'You are the Mayor. Your vote counts as two during the day phase. You may reveal your role publicly at any time to gain the town\'s trust.' },
-        'Innocent':  { color: '#aaaaaa', bg: '#1e1e1e', border: '#aaaaaa', emoji: '😇', desc: 'You are just a regular townsperson. You have no special ability — your only power is your voice. Observe, deduce, and vote wisely.' },
-        'Lovebird':  { color: '#FF55FF', bg: '#2e002e', border: '#FF55FF', emoji: '💕', desc: 'You are a Lovebird! You and your partner are linked — if one of you dies, the other dies too. Find your partner, protect each other, but don\'t make it obvious.' },
+        'Mafia': { color: '#FF4444', bg: '#2e0000', border: '#FF4444', emoji: '🔪', desc: 'Every night, you and your crew silently decide who gets taken out. You share a win condition with the Bitch — but you don\'t know who they are. Blend in, earn trust, and never let them see you coming.' },
+        'Detective': { color: '#4488FF', bg: '#00102e', border: '#4488FF', emoji: '🔍', desc: 'Every night you tail one suspect and uncover whether they\'re Mafia. Reveal your clues wisely — exposing yourself makes you their next target.' },
+        'Doctor': { color: '#44FF88', bg: '#002e10', border: '#44FF88', emoji: '💉', desc: 'Every night you shield one player from harm. If the Mafia strikes your chosen target, they live to see morning. You may also protect yourself.' },
+        'Bitch': { color: '#FF55FF', bg: '#2e002e', border: '#FF55FF', emoji: '💅', desc: 'Every night you keep one player… occupied. They\'re too tired to speak when the day begins, silencing them completely. You win alongside the Mafia — but neither of you knows the other. Pick your targets carefully.' },
+        'Jester': { color: '#FFAA00', bg: '#2e1a00', border: '#FFAA00', emoji: '🤡', desc: 'Your only goal is to get executed by the town. Stir up chaos, act guilty, and gaslight everyone into pulling the trigger on you. Lose to win.' },
+        'Sheriff': { color: '#FFD700', bg: '#2e2200', border: '#FFD700', emoji: '⭐', desc: 'Once per day you can publicly point the finger at a suspect. Nail a Mafia member and they\'re gone instantly. Guess wrong and you take the fall instead.' },
+        'Mayor': { color: '#55FFFF', bg: '#002e2e', border: '#55FFFF', emoji: '🎖️', desc: 'Once per game, you may cast a single vote worth five — use it to tip a critical vote in the town\'s favor. You can also reveal your identity at any time to rally the town\'s trust.' },
+        'Innocent': { color: '#aaaaaa', bg: '#1e1e1e', border: '#aaaaaa', emoji: '😇', desc: 'No powers, no tricks — just your instincts. Watch the room, read the players, and make your vote count. Sometimes the quietest voice changes everything.' },
+        'Lovebird': { color: '#FF55FF', bg: '#2e002e', border: '#FF55FF', emoji: '💕', desc: 'Your fate is tied to your partner\'s — the moment one of you falls, the other follows. Stick together, guard each other, and whatever you do, don\'t be obvious about it.' },
     };
     let gameDeck = [];
     let currentIndex = 0;
